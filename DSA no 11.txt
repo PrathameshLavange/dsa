@@ -1,0 +1,120 @@
+#include <iostream>      // For input/output operations
+#include <fstream>       // For file input/output operations
+#include <sstream>       // For string stream operations (used for parsing strings)
+#include <string>        // For using string class
+using namespace std;
+
+// Structure to represent a student
+struct Student {
+    int rollNumber;          // Unique student roll number
+    string name, division, address;  // Other student details
+
+    // Static function to create a Student object from a CSV string line
+    static Student fromString(const string &line) {
+        Student s;
+        stringstream ss(line);    // Convert line to stringstream for parsing
+        string rollStr;
+        getline(ss, rollStr, ',');  // Get roll number as string until first comma
+        s.rollNumber = stoi(rollStr); // Convert roll number to integer
+        getline(ss, s.name, ',');    // Extract name until comma
+        getline(ss, s.division, ','); // Extract division until comma
+        getline(ss, s.address);      // Extract remaining string as address
+        return s;                    // Return populated student object
+    }
+
+    // Function to convert Student object to a single CSV line string
+    string toString() const {
+        return to_string(rollNumber) + ", " + name + ", " + division + ", " + address;
+    }
+};
+
+// Function to add a new student record to the file
+void addStudent(const string &filename) {
+    ofstream file(filename, ios::app);  // Open file in append mode
+    Student s;
+    cout << "Enter Roll Number, Name, Division, Address: ";
+    cin >> s.rollNumber;     // Input roll number
+    cin.ignore();            // Ignore newline from previous input
+    getline(cin, s.name);    // Input full name
+    getline(cin, s.division);// Input division
+    getline(cin, s.address); // Input address
+    file << s.toString() << endl; // Write formatted student data to file
+    cout << "Student added.\n";
+}
+
+// Function to delete a student record from the file
+void deleteStudent(const string &filename) {
+    ifstream file(filename); // Open file for reading
+    string line;
+    int rollNumber;
+    cout << "Enter Roll Number to delete: ";
+    cin >> rollNumber;
+    bool found = false;         // Flag to check if record is found
+    stringstream ss;            // To store remaining student records
+
+    // Read file line by line
+    while (getline(file, line)) {
+        Student s = Student::fromString(line); // Convert line to student object
+        if (s.rollNumber != rollNumber) {
+            ss << line << endl; // Keep this line if roll number doesn't match
+        } else {
+            found = true;       // Mark that student was found
+        }
+    }
+    file.close();  // Close the file after reading
+    
+    if (!found) {
+        cout << "Student not found.\n";
+        return;
+    }
+
+    // Write all non-deleted lines back to the file
+    ofstream outFile(filename); // Overwrite file with updated content
+    outFile << ss.str();
+    cout << "Student deleted.\n";
+}
+
+// Function to display a specific student’s record
+void displayStudent(const string &filename) {
+    ifstream file(filename); // Open file for reading
+    string line;
+    int rollNumber;
+    cout << "Enter Roll Number to display: ";
+    cin >> rollNumber;
+    bool found = false;
+
+    // Read each line and look for matching roll number
+    while (getline(file, line)) {
+        Student s = Student::fromString(line); // Convert line to student object
+        if (s.rollNumber == rollNumber) {
+            // Display student details
+            cout << "Roll Number: " << s.rollNumber << "\n"
+                 << "Name: " << s.name << "\n"
+                 << "Division: " << s.division << "\n"
+                 << "Address: " << s.address << "\n";
+            found = true;
+            break;
+        }
+    }
+
+    if (!found) cout << "Student not found.\n";
+}
+
+// Main function - handles menu and user interaction
+int main() {
+    string filename = "students.txt"; // File to store student records
+    int choice;
+    while (true) {
+        // Display menu
+        cout << "\n1. Add Student\n2. Delete Student\n3. Display Student\n4. Exit\n";
+        cin >> choice;  // Get user's menu choice
+
+        // Call the corresponding function
+        if (choice == 1) addStudent(filename);
+        else if (choice == 2) deleteStudent(filename);
+        else if (choice == 3) displayStudent(filename);
+        else if (choice == 4) break; // Exit loop and program
+        else cout << "Invalid choice. Try again.\n"; // Handle invalid inputs
+    }
+    return 0;
+}
