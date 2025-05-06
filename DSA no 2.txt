@@ -1,0 +1,80 @@
+Implement all the functions of a dictionary (ADT) using hashing and handle collisions using chaining with / without replacement. CO1
+Data: Set of (key, value) pairs, Keys are mapped to values, Keys
+must be comparable, Keys must be unique
+Standard Operations: Insert(key, value),
+Find(key), Delete(key) (python)
+# Hash function: key la index madhe convert karto
+def hash_function(key, size):
+    return hash(key) % size
+
+# Key-value pair insert karne (update jari key same asel tar)
+def insert(table, key, value, size):
+    index = hash_function(key, size)
+    for pair in table[index]:
+        if pair[0] == key:
+            pair[1] = value  # existing key update
+            return
+    table[index].append([key, value])  # new key insert
+
+# Key find karne ani tyacha value return karne
+def find(table, key, size):
+    index = hash_function(key, size)
+    for pair in table[index]:
+        if pair[0] == key:
+            return pair[1]
+    return None  # key sapadla nahi tar
+
+# Key delete karne
+def delete(table, key, size):
+    index = hash_function(key, size)
+    for i, pair in enumerate(table[index]):
+        if pair[0] == key:
+            del table[index][i]  # key delete
+            return True
+    return False  # key sapadla nahi tar
+
+# Hash table print karne
+def display(table):
+    for i, bucket in enumerate(table):
+        print(f"Index {i}: {bucket}")
+
+# Hash table chi size define karne
+size = 10
+table = [[] for _ in range(size)]  # empty table tayar karto (list of lists)
+
+# User interface - menu driven program
+while True:
+    print("\n1. Insert\n2. Find\n3. Delete\n4. Display\n5. Exit")
+    ch = int(input("Enter choice: "))
+    
+    if ch == 1:
+        total = int(input("Enter total entries: "))
+        for _ in range(total):
+            key = input("Enter key: ")
+            value = input("Enter value: ")
+            insert(table, key, value, size)
+        display(table)  # insert nantar display
+
+    elif ch == 2:
+        key = input("Enter key to find: ")
+        result = find(table, key, size)
+        if result is not None:
+            print(f"Value found: {result}")
+        else:
+            print("Key not found.")
+
+    elif ch == 3:
+        key = input("Enter key to delete: ")
+        if delete(table, key, size):
+            print("Key deleted.")
+        else:
+            print("Key not found.")
+
+    elif ch == 4:
+        display(table)  # full table display
+
+    elif ch == 5:
+        break  # program exit
+
+    else:
+        print("Invalid choice, try again.")  # wrong input handle
