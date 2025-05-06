@@ -1,0 +1,93 @@
+A book consists of chapters, chapters consist of sections andsections consist of subsections. Construct a tree and print the
+nodes. Find the time and space requirements of your method.
+#include <iostream>
+#include <queue>
+#include <vector>
+using namespace std;
+
+// Node class to represent each book/chapter/section
+class Node {
+public:
+    string data;  // Stores the data (book/chapter/section name)
+    vector<Node*> children;  // Vector to store pointers to child nodes (sub-chapters/sections)
+    
+    // Constructor to initialize the node with a data
+    Node(string d) { data = d; }
+    
+    // Destructor to delete child nodes recursively to avoid memory leaks
+    ~Node() { 
+        for (Node* child : children) 
+            delete child; 
+    }
+};
+
+// Function to perform level-order traversal of the tree and print data
+void levelTraversal(Node* root) {
+    if (!root) return;  // If root is null, return
+    
+    queue<Node*> q;  // Queue to hold nodes for level-order traversal
+    q.push(root);  // Push root to queue
+    
+    while (!q.empty()) {
+        int size = q.size();  // Number of nodes at the current level
+        
+        // Process all nodes at the current level
+        while (size--) {
+            Node* curr = q.front();  // Get the node at the front of the queue
+            q.pop();  // Remove the node from the queue
+            cout << curr->data << " ";  // Print the node data (book/chapter/section name)
+            
+            // Push all child nodes of the current node into the queue for the next level
+            for (Node* child : curr->children) 
+                q.push(child);
+        }
+        cout << endl;  // Print a newline after each level to separate levels
+    }
+}
+
+int main() {
+    string title;
+    cout << "Enter book title: ";
+    cin >> title;  // User input for book title
+    
+    // Create root node with book title
+    Node* root = new Node(title);
+    
+    int chapters;
+    cout << "Enter number of chapters: ";
+    cin >> chapters;  // User input for the number of chapters
+    
+    // Loop through each chapter
+    for (int i = 0; i < chapters; i++) {
+        string chap;
+        cout << "Enter chapter " << i + 1 << ": ";
+        cin >> chap;  // User input for chapter name
+        
+        // Create a node for the chapter and add it as a child of the root (book)
+        Node* chapter = new Node(chap);
+        root->children.push_back(chapter);
+        
+        int sections;
+        cout << "Enter number of sections in " << chap << ": ";
+        cin >> sections;  // User input for number of sections in this chapter
+        
+        // Loop through each section in the chapter
+        for (int j = 0; j < sections; j++) {
+            string sec;
+            cout << "Enter section " << j + 1 << " in " << chap << ": ";
+            cin >> sec;  // User input for section name
+            
+            // Create a node for the section and add it as a child of the chapter node
+            chapter->children.push_back(new Node(sec));
+        }
+    }
+    
+    // Print the tree structure using level-order traversal
+    cout << "\nTree Structure:\n";
+    levelTraversal(root);
+    
+    // Clean up memory by deleting the root node (this will delete all child nodes recursively)
+    delete root;
+    
+    return 0;  // End of program
+}
