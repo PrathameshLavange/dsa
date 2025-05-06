@@ -1,0 +1,75 @@
+Construct an expression tree from the given prefix expression eg.+-- a*bc/def and traverse it using postorder
+traversal(nonrecursive) and then delete the entire tree.
+#include <iostream>
+#include <stack>
+using namespace std;
+
+// नोडची रचना (Node structure) – एका नोडमध्ये डेटा, डावं व उजवं उपनोड (left, right)
+struct Node {
+    char data;
+    Node* left;
+    Node* right;
+    Node(char d) {
+        data = d;
+        left = right = NULL;
+    }
+};
+
+// Prefix expression वरून expression tree तयार करणारी फंक्शन
+Node* buildTree(string expr) {
+    stack<Node*> st;
+    for (int i = expr.length() - 1; i >= 0; i--) {
+        char ch = expr[i];
+        Node* node = new Node(ch);
+        if (isalpha(ch)) {
+            // जर operand (अक्षर) असेल तर थेट stack मध्ये ठेवा
+            st.push(node);
+        } else {
+            // जर operator असेल तर दोन नोड्स काढा व नवीन नोडच्या डाव्या व उजव्या मध्ये ठेवा
+            node->left = st.top(); st.pop();
+            node->right = st.top(); st.pop();
+            st.push(node);
+        }
+    }
+    return st.top();  // Root नोड परत करा
+}
+
+// Non-recursive postorder traversal (LRN)
+void postorder(Node* root) {
+    stack<Node*> s1, s2;
+    s1.push(root);
+    while (!s1.empty()) {
+        Node* curr = s1.top(); s1.pop();
+        s2.push(curr);
+        if (curr->left) s1.push(curr->left);
+        if (curr->right) s1.push(curr->right);
+    }
+
+    cout << "Postorder: ";
+    while (!s2.empty()) {
+        cout << s2.top()->data << " ";
+        s2.pop();
+    }
+    cout << endl;
+}
+
+// झाड delete करणारी फंक्शन (recursive)
+void deleteTree(Node* root) {
+    if (!root) return;
+    deleteTree(root->left);
+    deleteTree(root->right);
+    delete root;
+}
+
+// मुख्य प्रोग्रॅम
+int main() {
+    string prefix;
+    cout << "Enter prefix expression (उदा. +--a*bc/def): ";
+    cin >> prefix;
+
+    Node* root = buildTree(prefix);   // expression tree तयार करा
+    postorder(root);                  // postorder traversal करा
+    deleteTree(root);                 // झाड delete करा (memory free)
+
+    return 0;
+}
