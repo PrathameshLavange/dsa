@@ -1,0 +1,143 @@
+#include <iostream>
+#include <climits>
+#include <iomanip>
+using namespace std;
+
+class Tree {
+    int a[20][20], visited[20], v, e;
+
+public:
+    void input();
+    void display();
+    void minimum();
+};
+
+void Tree::input() {
+    int l, u, w;
+    cout << "Enter total number of branches (vertices): ";
+    cin >> v;
+
+    // Initialize matrix and visited array
+    for (int i = 0; i < v; i++) {
+        visited[i] = 0;
+        for (int j = 0; j < v; j++) {
+            a[i][j] = INT_MAX; // No connection initially
+        }
+    }
+
+    cout << "Enter total number of connections (edges): ";
+    cin >> e;
+
+    for (int i = 0; i < e; i++) {
+        cout << "\nEnter two branches connected (1-based index): ";
+        cin >> l >> u;
+        cout << "Enter the cost: ";
+        cin >> w;
+
+        // Adjust to 0-based index
+        l--; u--;
+        if (l >= 0 && l < v && u >= 0 && u < v) {
+            a[l][u] = a[u][l] = w;
+        } else {
+            cout << "Invalid branch numbers. Please enter between 1 and " << v << ".\n";
+            i--; // Repeat this iteration
+        }
+    }
+}
+
+void Tree::display() {
+    cout << "\nAdjacency Matrix (INF = No connection):\n\n";
+
+    // Column headers
+    cout << setw(8) << " ";
+    for (int i = 0; i < v; i++)
+        cout << setw(8) << "B" + to_string(i + 1);
+    cout << "\n";
+
+    for (int i = 0; i < v; i++) {
+        cout << setw(8) << "B" + to_string(i + 1);
+        for (int j = 0; j < v; j++) {
+            if (a[i][j] == INT_MAX)
+                cout << setw(8) << "INF";
+            else
+                cout << setw(8) << a[i][j];
+        }
+        cout << "\n";
+    }
+}
+
+void Tree::minimum() {
+    int total = 0;
+
+    for (int i = 0; i < v; i++)
+        visited[i] = 0;
+
+    visited[0] = 1; // Start from 1st branch (index 0)
+
+    cout << "\n--- Minimum Spanning Tree using Prim's Algorithm ---\n\n";
+
+    for (int count = 0; count < v - 1; count++) {
+        int min = INT_MAX, p = -1, q = -1;
+
+        for (int i = 0; i < v; i++) {
+            if (visited[i]) {
+                for (int j = 0; j < v; j++) {
+                    if (!visited[j] && a[i][j] < min) {
+                        min = a[i][j];
+                        p = i;
+                        q = j;
+                    }
+                }
+            }
+        }
+
+        if (p == -1 || q == -1) {
+            cout << "Graph is not fully connected. MST cannot be formed.\n";
+            return;
+        }
+
+        visited[q] = 1;
+        cout << "Connect Branch B" << p + 1 << " -> B" << q + 1 << " with cost: " << min << "\n";
+        total += min;
+    }
+
+    cout << "\nTotal minimum cost for connecting all branches: " << total << "\n";
+}
+
+int main() {
+    int ch;
+    Tree t;
+
+    do {
+        cout << "\n========== PRIM'S ALGORITHM MENU ==========\n";
+        cout << "1. Enter Branch and Connection Details\n";
+        cout << "2. Display Cost Table (Adjacency Matrix)\n";
+        cout << "3. Generate Minimum Spanning Tree (MST)\n";
+        cout << "4. Exit\n";
+        cout << "Choose an option (1-4): ";
+        cin >> ch;
+
+        switch (ch) {
+            case 1:
+                cout << "\n--- Input Graph Details ---\n";
+                t.input();
+                break;
+            case 2:
+                cout << "\n--- Displaying Cost Table ---\n";
+                t.display();
+                break;
+            case 3:
+                cout << "\n--- Finding Minimum Spanning Tree ---\n";
+                t.minimum();
+                break;
+            case 4:
+                cout << "Program terminated. Goodbye!\n";
+                break;
+            default:
+                cout << "Invalid choice! Please enter a number between 1 and 4.\n";
+        }
+    } while (ch != 4);
+
+    return 0;
+}
+1
