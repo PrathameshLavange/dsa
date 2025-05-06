@@ -1,0 +1,110 @@
+There are flight paths between cities. If there is a flight between
+city A and city B then there is an edge between the cities. The
+cost of the edge can be the time that flight take to reach city B
+from A, or the amount of fuel used for the journey. Represent
+this as a graph. The node can be represented by airport name or
+name of the city. Use adjacency list representation of the graph or
+use adjacency matrix representation of the graph. Check
+whether the graph is connected or not. Justify the storage
+representation used.
+#include <iostream>
+#include <queue>
+using namespace std;
+
+// Maximum number of cities
+const int MAX = 50;
+
+// Global variables
+int adj[MAX][MAX];       // Adjacency matrix
+int visited[MAX];        // For DFS
+
+// DFS Function
+void dfs(int start, int n, string cities[]) {
+    visited[start] = 1;
+    cout << cities[start] << " ";
+
+    for (int i = 0; i < n; i++) {
+        if (adj[start][i] != 0 && visited[i] == 0) {
+            dfs(i, n, cities);
+        }
+    }
+}
+
+// BFS Function
+void bfs(int start, int n, string cities[]) {
+    int visited_bfs[MAX] = {0};
+    queue<int> q;
+
+    q.push(start);
+    visited_bfs[start] = 1;
+
+    while (!q.empty()) {
+        int current = q.front();
+        q.pop();
+        cout << cities[current] << " ";
+
+        for (int i = 0; i < n; i++) {
+            if (adj[current][i] != 0 && visited_bfs[i] == 0) {
+                q.push(i);
+                visited_bfs[i] = 1;
+            }
+        }
+    }
+}
+
+int main() {
+    int n;
+
+    // Step 1: Input number of cities
+    cout << "Enter number of cities: ";
+    cin >> n;
+
+    string cities[MAX];
+
+    // Step 2: Input city names
+    for (int i = 0; i < n; i++) {
+        cout << "Enter name of city " << i << ": ";
+        cin >> cities[i];
+    }
+
+    // Step 3: Input distances / connections
+    cout << "\nEnter distance (0 = no direct path):\n";
+    for (int i = 0; i < n; i++) {
+        for (int j = i + 1; j < n; j++) {
+            cout << "Distance between " << cities[i] << " and " << cities[j] << ": ";
+            cin >> adj[i][j];
+            adj[j][i] = adj[i][j]; // Symmetric (undirected graph)
+        }
+    }
+
+    // Step 4: Show adjacency matrix
+    cout << "\nAdjacency Matrix:\n\t";
+    for (int i = 0; i < n; i++)
+        cout << cities[i] << "\t";
+    cout << endl;
+
+    for (int i = 0; i < n; i++) {
+        cout << cities[i] << "\t";
+        for (int j = 0; j < n; j++) {
+            cout << adj[i][j] << "\t";
+        }
+        cout << endl;
+    }
+
+    // Step 5: Choose starting city
+    int start;
+    cout << "\nEnter index of starting city (0 to " << n - 1 << "): ";
+    cin >> start;
+
+    // Step 6: DFS traversal
+    for (int i = 0; i < n; i++) visited[i] = 0;
+    cout << "\nDFS Traversal: ";
+    dfs(start, n, cities);
+
+    // Step 7: BFS traversal
+    cout << "\nBFS Traversal: ";
+    bfs(start, n, cities);
+
+    cout << "\n\nDone.\n";
+    return 0;
+}
