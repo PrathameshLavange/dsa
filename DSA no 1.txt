@@ -1,0 +1,49 @@
+# Hash function: number la table madhil index madhe convert karto
+def hash_function(number, size):
+    return number % size
+
+# Table madhe number insert karne (linear/quadratic probing cha use karun)
+def insert(table, number, probing_type):
+    size = len(table)
+    index = hash_function(number, size)  # primary index milvato
+    original_index = index
+    i = 1  # probing counter
+
+    # Joparyant slot free nahi toparyant loop
+    while table[index] is not None:
+        if probing_type == 'linear':
+            index = (index + 1) % size  # linear probing
+        elif probing_type == 'quadratic':
+            index = (original_index + i ** 2) % size  # quadratic probing
+            i += 1
+        else:
+            print("Invalid probing method")  # valid method nasel tar warning
+            return
+        if i >= size:
+            print("Table is full!")  # sagle spots full astil tar
+            return
+
+    table[index] = number  # number insert karto
+
+# Hash table madhil values print karne
+def display(table):
+    for i, item in enumerate(table):
+        if item is not None:
+            print(f"Index {i}: {item}")
+
+# ---------------------
+# User kadun input ghen
+# ---------------------
+size = int(input("Table size: "))  # table cha size gheto
+probing_type = input("Probing method (linear/quadratic): ").strip().lower()  # probing type
+table = [None] * size  # table initialize karto
+n = int(input("How many numbers to insert? "))  # number of elements
+
+# Sagale numbers insert karto
+for _ in range(n):
+    num = int(input("Enter number: "))
+    insert(table, num, probing_type)
+
+# Final hash table display karto
+print("Hash Table:")
+display(table)
